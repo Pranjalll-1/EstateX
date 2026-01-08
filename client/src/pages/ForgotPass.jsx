@@ -1,8 +1,11 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import GoogleAuth from "../components/GoogleAuth";
+import { toast } from "react-toastify";
+import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 
 export default function ForgotPass() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -14,6 +17,19 @@ export default function ForgotPass() {
       ...prev,
       [e.target.id]: e.target.value,
     }));
+  }
+
+  async function onSubmit(e) {
+    e.preventDefault();
+    try {
+      const auth = getAuth();
+      await sendPasswordResetEmail(auth, email);
+      toast.success("Reset password email sent!");
+      navigate("/sign-in");
+    } catch (error) {
+      toast.error("Could not send reset password");
+      console.error(error);
+    }
   }
 
   return (
@@ -34,7 +50,7 @@ export default function ForgotPass() {
 
         {/* Right Form */}
         <div className="w-full md:w-[67%] lg:w-[40%] lg:ml-20">
-          <form>
+          <form onSubmit={onSubmit}>
             {/* Email */}
             <input
               type="email"
@@ -69,7 +85,7 @@ export default function ForgotPass() {
             {/* Button */}
             <button
               className="w-full cursor-pointer bg-blue-600 text-white px-7 py-3 text-sm font-medium uppercase rounded shadow-md hover:bg-blue-700 transition duration-150 ease-in-out hover:shadow-lg active:bg-blue-800"
-              type="button"
+              type="submit"
             >
               Send reset password
             </button>

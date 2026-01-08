@@ -1,9 +1,12 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 import { useState } from "react";
 import GoogleAuth from "../components/GoogleAuth";
+import { signInWithEmailAndPassword, getAuth } from "firebase/auth";
+import { toast } from "react-toastify";
 
 export default function SignIn() {
+  const navigate = useNavigate();
   const [showPass, setShowPass] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -18,6 +21,24 @@ export default function SignIn() {
   }
   function toggleShowPass() {
     setShowPass((prev) => !prev);
+  }
+  async function onSubmit(e) {
+    e.preventDefault();
+    try {
+      const auth = getAuth();
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      if (userCredential.user) {
+        navigate("/");
+        toast.success("Sign-in was successful!");
+      }
+    } catch (error) {
+      toast.error("Bad user credentials");
+      console.error(error);
+    }
   }
   return (
     <section>
@@ -37,7 +58,7 @@ export default function SignIn() {
 
         {/* Right Form */}
         <div className="w-full md:w-[67%] lg:w-[40%] lg:ml-20">
-          <form>
+          <form onSubmit={onSubmit}>
             {/* Email */}
             <input
               type="email"
@@ -96,7 +117,7 @@ export default function SignIn() {
             {/* Button */}
             <button
               className="w-full cursor-pointer bg-blue-600 text-white px-7 py-3 text-sm font-medium uppercase rounded shadow-md hover:bg-blue-700 transition duration-150 ease-in-out hover:shadow-lg active:bg-blue-800"
-              type="button"
+              type="submit"
             >
               Sign in
             </button>

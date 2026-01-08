@@ -28,25 +28,60 @@ export default function SignUp() {
   }
   async function onSubmit(e) {
     e.preventDefault();
+
+    if (!name || !email || !password) {
+      toast.error("Please fill all fields");
+      return;
+    }
+
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+
     try {
       const auth = getAuth();
+
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
         password
       );
-      updateProfile(auth.currentUser, {
+
+      await updateProfile(auth.currentUser, {
         displayName: name,
       });
+
       const user = userCredential.user;
-      const formDataCopy = { ...formData };
-      delete formDataCopy.password;
-      formDataCopy.timestamp = serverTimestamp();
-      await setDoc(doc(db, "users", user.uid), formDataCopy);
+
+      await setDoc(doc(db, "users", user.uid), {
+        name,
+        email,
+        createdAt: serverTimestamp(),
+        provider: "password",
+      });
+
       toast.success("Sign-up was successful!");
       navigate("/");
     } catch (error) {
-      toast.error("Something went wrong!");
+      console.error(error.code, error.message);
+
+      switch (error.code) {
+        case "auth/operation-not-allowed":
+          toast.error("Email/password auth not enabled");
+          break;
+        case "auth/email-already-in-use":
+          toast.error("Email already in use");
+          break;
+        case "auth/invalid-email":
+          toast.error("Invalid email");
+          break;
+        case "auth/weak-password":
+          toast.error("Weak password");
+          break;
+        default:
+          toast.error("Sign-up failed");
+      }
     }
   }
 
