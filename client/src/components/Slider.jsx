@@ -52,6 +52,7 @@ const Slider = () => {
             <SwiperSlide
               key={id}
               onClick={() => navigate(`/category/${data.type}/${id}`)}
+              className="cursor-pointer"
             >
               <div
                 style={{
@@ -60,8 +61,16 @@ const Slider = () => {
                   backgroundRepeat: "no-repeat",
                   backgroundSize: "cover",
                 }}
-                className="w-full h-[300px] overflow-hidden"
+                className="relative w-full h-[300px] overflow-hidden"
               />
+              <p className="text-[#f1faee] absolute left-1 top-3 font-medium max-w-[90%] bg-[#457b9d] shadow-lg opacity-90 p-2 rounded-br-3xl">
+                {data.name}
+              </p>
+              <p className="text-[#f1faee] absolute left-1 bottom-1 font-semibold max-w-[90%] bg-[#e63946] shadow-lg opacity-90 p-2 rounded-tr-3xl">
+                {data.offer
+                  ? `${Number(data.discountedPrice).toLocaleString("en-IN", { style: "currency", currency: "INR" })}`
+                  : `${Number(data.regularPrice).toLocaleString("en-IN", { style: "currency", currency: "INR" })}`}
+              </p>
             </SwiperSlide>
           ))}
         </Swiper>
