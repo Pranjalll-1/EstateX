@@ -12,19 +12,21 @@ import {
 import { db } from "../firebase.js";
 import Spinner from "../components/Spinner.jsx";
 import ListingItem from "../components/ListingItem.jsx";
+import { useParams } from "react-router";
 
-const Offers = () => {
-  const [offerListings, setOfferListings] = useState(null);
+const Category = () => {
+  const [listings, setListings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [lastFetchedListing, setLastFetchedListing] = useState(null);
+  const params = useParams();
 
   useEffect(() => {
-    async function fetchOfferListings() {
+    async function fetchListings() {
       try {
         const docRef = collection(db, "listings");
         const q = query(
           docRef,
-          where("offer", "==", true),
+          where("type", "==", params.categoryName),
           orderBy("timestamp", "desc"),
           limit(8),
         );
@@ -38,21 +40,21 @@ const Offers = () => {
             data: doc.data(),
           });
         });
-        setOfferListings(listings);
+        setListings(listings);
         setLoading(false);
       } catch (error) {
         toast.error("Could not fetch listings");
       }
     }
-    fetchOfferListings();
-  }, []);
+    fetchListings();
+  }, [params.categoryName]);
 
   async function onFetchMoreListings() {
     try {
       const docRef = collection(db, "listings");
       const q = query(
         docRef,
-        where("offer", "==", true),
+        where("type", "==", params.categoryName),
         orderBy("timestamp", "desc"),
         startAfter(lastFetchedListing),
         limit(4),
@@ -67,7 +69,7 @@ const Offers = () => {
           data: doc.data(),
         });
       });
-      setOfferListings((prev) => [...prev, ...listings]);
+      setListings((prev) => [...prev, ...listings]);
       setLoading(false);
     } catch (error) {
       toast.error("Could not fetch listings");
@@ -77,12 +79,14 @@ const Offers = () => {
   if (loading) return <Spinner />;
   return (
     <div className="max-w-6xl mx-auto px-3">
-      <h1 className="text-3xl text-center mt-6 font-bold">Offers</h1>
-      {offerListings && offerListings.length > 0 ? (
+      <h1 className="text-3xl text-center mt-6 font-bold">
+        {params.categoryName === "rent" ? "Places for rent" : "Places for sale"}
+      </h1>
+      {listings && listings.length > 0 ? (
         <>
           <main className="mt-6">
             <ul className="sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {offerListings.map((listing) => (
+              {listings.map((listing) => (
                 <ListingItem
                   key={listing.id}
                   listing={listing.data}
@@ -103,10 +107,10 @@ const Offers = () => {
           )}
         </>
       ) : (
-        <p>There are no current offers</p>
+        <p>There are no current listings</p>
       )}
     </div>
   );
 };
 
-export default Offers;
+export default Category;

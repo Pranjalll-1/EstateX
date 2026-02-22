@@ -21,11 +21,11 @@ const Navbar = () => {
     <nav className="bg-white border-b shadow-sm sticky top-0 z-40">
       <header className="flex justify-between items-center px-3 max-w-6xl mx-auto">
         {/* Logo */}
-        <div>
+        <div className="">
           <img
-            src="logo-brand.svg"
+            src="/logo.png"
             alt="logo"
-            className="h-5 cursor-pointer"
+            className="h-12 w-auto object-contain cursor-pointer"
             onClick={() => navigate("/")}
           />
         </div>

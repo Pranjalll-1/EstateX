@@ -12,6 +12,7 @@ import { ToastContainer, Bounce } from "react-toastify";
 import CreateListing from "./pages/CreateListing";
 import EditListing from "./pages/EditListing";
 import Listing from "./pages/Listing";
+import Category from "./pages/Category";
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
             path="/category/:categoryName/:listingId"
             element={<Listing />}
           />
+          <Route path="/category/:categoryName" element={<Category />} />
         </Routes>
       </Router>
       <ToastContainer
