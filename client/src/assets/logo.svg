@@ -1,0 +1,33 @@
+<svg viewBox="0 0 220 60" xmlns="http://www.w3.org/2000/svg">
+  <!-- House icon -->
+  <g>
+    <!-- Roof -->
+    <path d="M10 35 L35 12 L60 35 Z" fill="currentColor"/>
+    
+    <!-- House body -->
+    <rect x="20" y="35" width="30" height="18" rx="2" fill="currentColor"/>
+
+    <!-- Window -->
+    <rect x="30" y="40" width="10" height="8" rx="1" fill="white"/>
+    <line x1="35" y1="40" x2="35" y2="48" stroke="currentColor" stroke-width="1"/>
+    <line x1="30" y1="44" x2="40" y2="44" stroke="currentColor" stroke-width="1"/>
+  </g>
+
+  <!-- Estate text -->
+  <text x="75" y="43"
+        font-family="Inter, Arial, sans-serif"
+        font-size="28"
+        font-weight="600"
+        fill="currentColor">
+    Estate
+  </text>
+
+  <!-- Gold X -->
+  <text x="165" y="43"
+        font-family="Inter, Arial, sans-serif"
+        font-size="28"
+        font-weight="700"
+        fill="#D4AF37">
+    X
+  </text>
+</svg>

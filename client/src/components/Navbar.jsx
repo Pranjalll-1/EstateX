@@ -1,6 +1,7 @@
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
+import Logo from "../assets/logo.svg?react";
 
 const Navbar = () => {
   const location = useLocation();
@@ -22,10 +23,8 @@ const Navbar = () => {
       <header className="flex justify-between items-center px-3 max-w-6xl mx-auto">
         {/* Logo */}
         <div className="">
-          <img
-            src="/logo.png"
-            alt="logo"
-            className="h-12 w-auto object-contain cursor-pointer"
+          <Logo
+            className="h-14 cursor-pointer text-gray-800 hover:text-black transition"
             onClick={() => navigate("/")}
           />
         </div>
