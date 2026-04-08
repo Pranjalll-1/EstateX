@@ -3,14 +3,7 @@ import Spinner from "../components/Spinner";
 import { toast } from "react-toastify";
 import { addDoc, serverTimestamp, collection } from "firebase/firestore";
 import { db } from "../firebase.js";
-import {
-  getStorage,
-  ref,
-  uploadBytesResumable,
-  getDownloadURL,
-} from "firebase/storage";
 import { getAuth } from "firebase/auth";
-import { v4 as uuidv4 } from "uuid";
 import { useNavigate } from "react-router-dom";
 
 const CreateListing = () => {
@@ -152,36 +145,18 @@ const CreateListing = () => {
     };
 
     async function storeImage(image) {
-      return new Promise((resolve, reject) => {
-        const storage = getStorage();
-        const filename = `${auth.currentUser.uid}-${image.name}-${uuidv4()}`;
-        const storageRef = ref(storage, filename);
-        const uploadTask = uploadBytesResumable(storageRef, image);
-        uploadTask.on(
-          "state_changed",
-          (snapshot) => {
-            const progress =
-              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            console.log(`Upload is ${progress}% done`);
-            switch (snapshot.state) {
-              case "paused":
-                console.log("Upload is paused");
-                break;
-              case "running":
-                console.log("Upload is running");
-                break;
-            }
-          },
-          (error) => {
-            reject(error);
-          },
-          () => {
-            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-              resolve(downloadURL);
-            });
-          },
-        );
-      });
+      const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+      const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+      const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+
+      const data = new FormData();
+      data.append("file", image);
+      data.append("upload_preset", uploadPreset);
+
+      const res = await fetch(url, { method: "POST", body: data });
+      if (!res.ok) throw new Error("Cloudinary upload failed");
+      const json = await res.json();
+      return json.secure_url;
     }
 
     const imgUrls = await Promise.all(
@@ -223,11 +198,10 @@ const CreateListing = () => {
             id="type"
             value="sale"
             onClick={onChange}
-            className={`px-7 py-3 font-medium uppercase text-sm shadow-md rounded hover:shadow-lg focus:shadow-lg active:shadow-lg transition duration-200 ease-in-out cursor-pointer w-full ${
-              type === "sale"
+            className={`px-7 py-3 font-medium uppercase text-sm shadow-md rounded hover:shadow-lg focus:shadow-lg active:shadow-lg transition duration-200 ease-in-out cursor-pointer w-full ${type === "sale"
                 ? "bg-slate-600 text-white"
                 : "bg-white text-black"
-            }`}
+              }`}
           >
             Sell
           </button>
@@ -236,11 +210,10 @@ const CreateListing = () => {
             id="type"
             value="rent"
             onClick={onChange}
-            className={`px-7 py-3 font-medium uppercase text-sm shadow-md rounded hover:shadow-lg focus:shadow-lg active:shadow-lg transition duration-200 ease-in-out cursor-pointer w-full ${
-              type === "rent"
+            className={`px-7 py-3 font-medium uppercase text-sm shadow-md rounded hover:shadow-lg focus:shadow-lg active:shadow-lg transition duration-200 ease-in-out cursor-pointer w-full ${type === "rent"
                 ? "bg-slate-600 text-white"
                 : "bg-white text-black"
-            }`}
+              }`}
           >
             Rent
           </button>
@@ -292,9 +265,8 @@ const CreateListing = () => {
             id="parking"
             value={true}
             onClick={onChange}
-            className={`px-7 py-3 font-medium uppercase text-sm shadow-md rounded hover:shadow-lg focus:shadow-lg active:shadow-lg transition duration-200 ease-in-out cursor-pointer w-full ${
-              parking ? "bg-slate-600 text-white" : "bg-white text-black"
-            }`}
+            className={`px-7 py-3 font-medium uppercase text-sm shadow-md rounded hover:shadow-lg focus:shadow-lg active:shadow-lg transition duration-200 ease-in-out cursor-pointer w-full ${parking ? "bg-slate-600 text-white" : "bg-white text-black"
+              }`}
           >
             Yes
           </button>
@@ -303,9 +275,8 @@ const CreateListing = () => {
             id="parking"
             value={false}
             onClick={onChange}
-            className={`px-7 py-3 font-medium uppercase text-sm shadow-md rounded hover:shadow-lg focus:shadow-lg active:shadow-lg transition duration-200 ease-in-out cursor-pointer w-full ${
-              !parking ? "bg-slate-600 text-white" : "bg-white text-black"
-            }`}
+            className={`px-7 py-3 font-medium uppercase text-sm shadow-md rounded hover:shadow-lg focus:shadow-lg active:shadow-lg transition duration-200 ease-in-out cursor-pointer w-full ${!parking ? "bg-slate-600 text-white" : "bg-white text-black"
+              }`}
           >
             No
           </button>
@@ -317,9 +288,8 @@ const CreateListing = () => {
             id="furnished"
             value={true}
             onClick={onChange}
-            className={`px-7 py-3 font-medium uppercase text-sm shadow-md rounded hover:shadow-lg focus:shadow-lg active:shadow-lg transition duration-200 ease-in-out cursor-pointer w-full ${
-              furnished ? "bg-slate-600 text-white" : "bg-white text-black"
-            }`}
+            className={`px-7 py-3 font-medium uppercase text-sm shadow-md rounded hover:shadow-lg focus:shadow-lg active:shadow-lg transition duration-200 ease-in-out cursor-pointer w-full ${furnished ? "bg-slate-600 text-white" : "bg-white text-black"
+              }`}
           >
             Yes
           </button>
@@ -328,9 +298,8 @@ const CreateListing = () => {
             id="furnished"
             value={false}
             onClick={onChange}
-            className={`px-7 py-3 font-medium uppercase text-sm shadow-md rounded hover:shadow-lg focus:shadow-lg active:shadow-lg transition duration-200 ease-in-out cursor-pointer w-full ${
-              !furnished ? "bg-slate-600 text-white" : "bg-white text-black"
-            }`}
+            className={`px-7 py-3 font-medium uppercase text-sm shadow-md rounded hover:shadow-lg focus:shadow-lg active:shadow-lg transition duration-200 ease-in-out cursor-pointer w-full ${!furnished ? "bg-slate-600 text-white" : "bg-white text-black"
+              }`}
           >
             No
           </button>
@@ -411,9 +380,8 @@ const CreateListing = () => {
             id="offer"
             value={true}
             onClick={onChange}
-            className={`px-7 py-3 font-medium uppercase text-sm shadow-md rounded hover:shadow-lg focus:shadow-lg active:shadow-lg transition duration-200 ease-in-out cursor-pointer w-full ${
-              offer ? "bg-slate-600 text-white" : "bg-white text-black"
-            }`}
+            className={`px-7 py-3 font-medium uppercase text-sm shadow-md rounded hover:shadow-lg focus:shadow-lg active:shadow-lg transition duration-200 ease-in-out cursor-pointer w-full ${offer ? "bg-slate-600 text-white" : "bg-white text-black"
+              }`}
           >
             Yes
           </button>
@@ -422,9 +390,8 @@ const CreateListing = () => {
             id="offer"
             value={false}
             onClick={onChange}
-            className={`px-7 py-3 font-medium uppercase text-sm shadow-md rounded hover:shadow-lg focus:shadow-lg active:shadow-lg transition duration-200 ease-in-out cursor-pointer w-full ${
-              !offer ? "bg-slate-600 text-white" : "bg-white text-black"
-            }`}
+            className={`px-7 py-3 font-medium uppercase text-sm shadow-md rounded hover:shadow-lg focus:shadow-lg active:shadow-lg transition duration-200 ease-in-out cursor-pointer w-full ${!offer ? "bg-slate-600 text-white" : "bg-white text-black"
+              }`}
           >
             No
           </button>
@@ -443,7 +410,7 @@ const CreateListing = () => {
                 required
                 className="w-1/2 mb-6 px-4 py-2 text-xl text-gray-700 bg-white border-2 border-gray-300 rounded transition ease-in-out"
               />
-              {type === "rent" && <p className="w-1/2 text-md ">$ per month</p>}
+              {type === "rent" && <p className="w-1/2 text-md ">&#8377; per month</p>}
             </div>
           </div>
           <div>
@@ -462,7 +429,7 @@ const CreateListing = () => {
                     className="w-1/2 mb-6 px-4 py-2 text-xl text-gray-700 bg-white border-2 border-gray-300 rounded transition ease-in-out"
                   />
                   {type === "rent" && (
-                    <p className="w-1/2 text-md ">$ per month</p>
+                    <p className="w-1/2 text-md ">&#8377; per month</p>
                   )}
                 </div>
               </div>

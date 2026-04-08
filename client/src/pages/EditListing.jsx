@@ -3,14 +3,7 @@ import Spinner from "../components/Spinner";
 import { toast } from "react-toastify";
 import { doc, getDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase.js";
-import {
-  getStorage,
-  ref,
-  uploadBytesResumable,
-  getDownloadURL,
-} from "firebase/storage";
 import { getAuth } from "firebase/auth";
-import { v4 as uuidv4 } from "uuid";
 import { useNavigate, useParams } from "react-router-dom";
 
 const EditListing = () => {
@@ -165,29 +158,18 @@ const EditListing = () => {
   };
 
   async function storeImage(image) {
-    return new Promise((resolve, reject) => {
-      const storage = getStorage();
-      const filename = `${auth.currentUser.uid}-${image.name}-${uuidv4()}`;
-      const storageRef = ref(storage, filename);
-      const uploadTask = uploadBytesResumable(storageRef, image);
+    const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+    const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+    const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
 
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          const progress =
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log("Upload is " + progress + "% done");
-        },
-        (error) => {
-          reject(error);
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            resolve(downloadURL);
-          });
-        },
-      );
-    });
+    const data = new FormData();
+    data.append("file", image);
+    data.append("upload_preset", uploadPreset);
+
+    const res = await fetch(url, { method: "POST", body: data });
+    if (!res.ok) throw new Error("Cloudinary upload failed");
+    const json = await res.json();
+    return json.secure_url;
   }
 
   const onSubmit = async (e) => {
