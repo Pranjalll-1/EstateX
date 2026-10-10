@@ -1,6 +1,6 @@
 🏠 EstateX — Real Estate Listings Web App
 
-Live Demo: https://estatex-m86q7enw3-ps350575-gmailcoms-projects.vercel.app/
+Live Demo: https://estatex-six.vercel.app
 
 A production‑style real‑estate platform where users can authenticate, create property listings, upload images, and browse categorized offers. Built as a full SPA with Firebase backend services and deployed on Vercel.
 
